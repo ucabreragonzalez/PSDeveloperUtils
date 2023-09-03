@@ -1,11 +1,12 @@
 [CmdletBinding()]
 Param(
 	[Parameter(Mandatory = $false)]
-	[switch]
-	$Deploy,
+	[string]
+	$Repository,
 	[Parameter(Mandatory = $false)]
 	[switch]
 	$SkipTests
 )
-## Do some magic!!...
-## Well for now you need to write something in here
+Import-Module PSDeveloperUtils
+
+Build-Module -RootPath $PSScriptRoot -Repository:$Repository -SkipTests:$SkipTests

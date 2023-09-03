@@ -55,12 +55,7 @@ Function New-PSModule
 		$manifestParams = @{
 			Path = $psd1File
 			RootModule = $psm1File
-			# Author = $env:Username
-			# CompanyName = "GWLE"
 			Description = $Description
-			# ModuleVersion = '1.0.0'
-			# Copyright = "(c) $(Get-Date -Format "yyyy") GWLE. All rights reserved."
-			# Tags = 'GWLE'
 		}
 		
 		New-ModuleManifest @manifestParams
