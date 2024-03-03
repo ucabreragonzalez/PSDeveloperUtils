@@ -1,15 +1,14 @@
-Function Build-Module
-{
+Function Build-Module {
 	[CmdletBinding(SupportsShouldProcess = $true)]
 	Param
 	(
 		# Path to the root of the module code
 		[ValidateScript({
-			if ( -Not ($_ | Test-Path) ) {
-				throw [System.IO.DirectoryNotFoundException] "Path $RootPath not found."
-			}
-			return $true
-		})]
+				if ( -Not ($_ | Test-Path) ) {
+					throw [System.IO.DirectoryNotFoundException] "Path $RootPath not found."
+				}
+				return $true
+			})]
 		[Parameter(Position = 0, Mandatory = $true)]
 		[System.IO.DirectoryInfo]
 		$RootPath,
@@ -29,8 +28,7 @@ Function Build-Module
 		throw 'Could not identify the module name'
 	}
 
-	If ($PSCmdlet.ShouldProcess($moduleName, "Building module"))
-	{
+	If ($PSCmdlet.ShouldProcess($moduleName, "Building module")) {
 		try {
 			# Copy source of module to a temp folder
 			$tempModulePath = Copy-ModuleSource -RootPath $RootPath
@@ -42,11 +40,16 @@ Function Build-Module
 				Import-Module $tempModulePath -Force
 
 				Push-Location $RootPath
-				$pesterResults = Invoke-Pester -PassThru
+
+				$Config = New-PesterConfiguration
+				$Config.Run.PassThru = $true
+				$Config.TestResult.Enabled = $true
+				$Config.CodeCoverage.Enabled = $true
+				$pesterResults = Invoke-Pester -Configuration $Config
 				Pop-Location
 			}
 			
-			if ([string]::IsNullOrEmpty($Repository)){
+			if ([string]::IsNullOrEmpty($Repository)) {
 				# if no need to publish, then we are done.
 				return
 			}
@@ -61,12 +64,13 @@ Function Build-Module
 			if ($repoModule) {
 				$oldVersion = [Version]::new($repoModule.Version)
 				$newVersion = [Version]::new($oldVersion.Major, $oldVersion.Minor, $oldVersion.Build, ($oldVersion.Revision + 1))
-			} else {
+			}
+			else {
 				$newVersion = [Version]::new(0, 0, 1, 1)
 			}
 
 			$Params = @{
-				Path = (Join-Path $tempModulePath "$moduleName.psd1")
+				Path          = (Join-Path $tempModulePath "$moduleName.psd1")
 				ModuleVersion = $newVersion
 			}
 			
@@ -80,7 +84,7 @@ Function Build-Module
 			throw $_
 		}
 	}
-<#
+	<#
 .SYNOPSIS
 Build module in a temp directory, run its test cases and publish it to an existing repository
 
